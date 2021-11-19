@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover"
+    />
+    <title>My LIFF App</title>
+    <style>
+      body {
+        padding: 10%;
+      }
+      button {
+        display: none;
+        width: 80%;
+        max-width: 404px;
+        height: 60px;
+        padding: 5px 10px;
+        margin: 16px auto;
+        background-color: #00c300;
+        color: white;
+        font-size: 16px;
+        /* font-weight: bold; */
+        border: none;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="btnShare" onclick="sendShare()">แบ่งปันให้เพื่อนของคุณ</button>
+    <button id="btnLogin" onclick="liff.login()">เข้าสู่ระบบ</button>
+    <button id="btnLogOut" onclick="logOut()">ออกจากระบบ</button>
+    <script src="https://static.line-scdn.net/liff/edge/versions/2.9.1/sdk.js"></script>
+    <script>
+      async function sendShare() {
+        const result = await liff.shareTargetPicker([
+          {
+            type: "flex",
+            altText: "Coupon",
+            contents:
+             /* JSON */
+             
+             ...
+             
+            /* JSON */
+          },
+        ]);
+        if (result) {
+          alert(`[${result.status}] Message sent!`);
+          liff.closeWindow();
+        } else {
+          const [majorVer, minorVer, patchVer] = (liff.getLineVersion() || "").split(".");
+
+          if (minorVer === undefined) {
+            alert("ShareTargetPicker was canceled in external browser");
+            return;
+          }
+
+          if (parseInt(majorVer) >= 10 && parseInt(minorVer) >= 10 && parseInt(patchVer) > 0) {
+            alert("ShareTargetPicker was canceled in LINE app");
+          }
+          liff.closeWindow();
+        }
+      }
+      function logOut() {
+        liff.logout();
+        window.location.reload();
+      }
+      async function main() {
+        await liff.init({ liffId: "Your-LIFF-ID" });
+        if (liff.isLoggedIn()) {
+          if (!liff.isInClient()) {
+            document.getElementById("btnShare").style.display = "block";
+            document.getElementById("btnLogOut").style.display = "block";
+          } else {
+            sendShare();
+          }
+        } else {
+          document.getElementById("btnLogin").style.display = "block";
+        }
+      }
+      main();
+    </script>
+  </body>
+</html>
